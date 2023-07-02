@@ -23,10 +23,49 @@ public class Player : MonoBehaviour
 
         Vector3 moveDirection = new Vector3(inputVector.x, 0.0f, inputVector.y);
 
-        // check if the player is walking or stopped
+        // check if the player is walking or stopped for the animation
         isWalking = (moveDirection != Vector3.zero);
 
-        transform.position += moveDirection * movementSpeed * Time.deltaTime;
+        // chekc for collison to prevent the player from moving
+        float moveDistance = Time.deltaTime * movementSpeed;
+        float playerRadious = 0.7f;
+        float playerHeight = 2.0f;
+        bool canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadious, moveDirection, moveDistance);
+
+        if (!canMove)
+        {
+            // check which direction the player can't move
+            // check if the player can move in the x direction
+            Vector3 moveDirectionX = new Vector3(moveDirection.x, 0.0f, 0.0f);
+            canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadious, moveDirectionX, moveDistance);
+
+            if (canMove)
+            {
+                // can move only in x
+                moveDirection = moveDirectionX;
+            }
+            else
+            {
+                // check if the player can move in the z direction
+                Vector3 moveDirectionZ = new Vector3(0.0f, 0.0f, moveDirection.z);
+                canMove = !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadious, moveDirectionZ, moveDistance);
+
+                if (canMove)
+                {
+                    // can move only in z
+                    moveDirection = moveDirectionZ;
+                }
+                else
+                {
+                    // can't move at all
+                }
+            }
+        }
+
+        if (canMove)
+        { 
+            transform.position += moveDirection * moveDistance;
+        }
 
         float rotaionSpeed = 10.0f;
         transform.forward = Vector3.Slerp(transform.forward, moveDirection, Time.deltaTime * rotaionSpeed);
