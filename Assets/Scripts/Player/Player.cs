@@ -5,6 +5,7 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     [SerializeField] float movementSpeed = 7.0f;
+    [SerializeField] GameInput gameInput;
 
     private bool isWalking;
 
@@ -18,26 +19,7 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        Vector2 inputVector = new Vector2(0.0f, 0.0f);
-        
-        if (Input.GetKey(KeyCode.W))
-        {
-            inputVector.y = 1.0f;
-        }
-        if (Input.GetKey(KeyCode.S))
-        {
-            inputVector.y = -1.0f;
-        }
-        if (Input.GetKey(KeyCode.D))
-        {
-            inputVector.x = 1.0f;
-        }
-        if (Input.GetKey(KeyCode.A))
-        {
-            inputVector.x = -1.0f;
-        }
-
-        inputVector = inputVector.normalized;
+        Vector2 inputVector = gameInput.GetInputVectorNormalized();
 
         Vector3 moveDirection = new Vector3(inputVector.x, 0.0f, inputVector.y);
 
