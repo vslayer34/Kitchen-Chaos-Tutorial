@@ -4,26 +4,18 @@ using UnityEngine;
 
 public class GameInput : MonoBehaviour
 {
+    private PlayerInputAction playerInputAction;
+
+    private void Awake()
+    {
+        playerInputAction = new PlayerInputAction();
+        playerInputAction.Player.Enable();
+    }
+
+
     public Vector2 GetInputVectorNormalized()
     {
-        Vector2 inputVector = new Vector2(0.0f, 0.0f);
-
-        if (Input.GetKey(KeyCode.W))
-        {
-            inputVector.y = 1.0f;
-        }
-        if (Input.GetKey(KeyCode.S))
-        {
-            inputVector.y = -1.0f;
-        }
-        if (Input.GetKey(KeyCode.D))
-        {
-            inputVector.x = 1.0f;
-        }
-        if (Input.GetKey(KeyCode.A))
-        {
-            inputVector.x = -1.0f;
-        }
+        Vector2 inputVector = playerInputAction.Player.Move.ReadValue<Vector2>();
 
         return inputVector.normalized;
     }
