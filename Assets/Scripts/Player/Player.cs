@@ -7,7 +7,8 @@ public class Player : MonoBehaviour
     [SerializeField] float movementSpeed = 7.0f;
     [SerializeField] GameInput gameInput;
 
-    private bool isWalking;
+    bool isWalking;
+    Vector3 lastInteractDirection;
 
 
     // properties
@@ -18,6 +19,35 @@ public class Player : MonoBehaviour
 
 
     private void Update()
+    {
+        HandleMovement();
+        HanldeInteractions();
+    }
+
+
+    void HanldeInteractions()
+    {
+        Vector2 inputVector = gameInput.GetInputVectorNormalized();
+        Vector3 moveDirection = new Vector3(inputVector.x, 0.0f, inputVector.y);
+
+        if (moveDirection != Vector3.zero )
+        {
+            lastInteractDirection = moveDirection;
+        }
+
+        float interactionDistance = 2.0f;
+
+        if (Physics.Raycast(transform.position, lastInteractDirection, out RaycastHit hit, interactionDistance))
+        {
+            Debug.Log(hit.collider.gameObject.name);
+        }
+        else
+        {
+            Debug.Log("-");
+        }
+    }
+
+    void HandleMovement()
     {
         Vector2 inputVector = gameInput.GetInputVectorNormalized();
 
@@ -63,7 +93,7 @@ public class Player : MonoBehaviour
         }
 
         if (canMove)
-        { 
+        {
             transform.position += moveDirection * moveDistance;
         }
 
