@@ -6,6 +6,7 @@ public class Player : MonoBehaviour
 {
     [SerializeField] float movementSpeed = 7.0f;
     [SerializeField] GameInput gameInput;
+    [SerializeField] LayerMask layerMask;
 
     bool isWalking;
     Vector3 lastInteractDirection;
@@ -17,11 +18,19 @@ public class Player : MonoBehaviour
     /// </summary>
     public bool IsWalking { get => isWalking; }
 
+    void Start()
+    {
+        gameInput.OnInteractionAction += GameInput_OnInteractionAction;
+    }
+
+    private void GameInput_OnInteractionAction(object sender, System.EventArgs e)
+    {
+        HanldeInteractions();
+    }
 
     private void Update()
     {
         HandleMovement();
-        HanldeInteractions();
     }
 
 
@@ -30,6 +39,7 @@ public class Player : MonoBehaviour
         Vector2 inputVector = gameInput.GetInputVectorNormalized();
         Vector3 moveDirection = new Vector3(inputVector.x, 0.0f, inputVector.y);
 
+        // get the last interaction so it remebers the interaction without the player moving
         if (moveDirection != Vector3.zero )
         {
             lastInteractDirection = moveDirection;
@@ -37,13 +47,13 @@ public class Player : MonoBehaviour
 
         float interactionDistance = 2.0f;
 
-        if (Physics.Raycast(transform.position, lastInteractDirection, out RaycastHit hit, interactionDistance))
+        if (Physics.Raycast(transform.position, lastInteractDirection, out RaycastHit hit, interactionDistance, layerMask))
         {
-            Debug.Log(hit.collider.gameObject.name);
-        }
-        else
-        {
-            Debug.Log("-");
+            // Try to get the ClearCounter script to identify the object the player collided with
+            if (hit.collider.TryGetComponent(out ClearCounter counter))
+            {
+                counter.Interact();
+            }
         }
     }
 

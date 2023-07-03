@@ -10,7 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 6833959535598453338}
   - component: {fileID: 1765530507192706131}
-  m_Layer: 0
+  - component: {fileID: 6813504396134268068}
+  m_Layer: 3
   m_Name: Clear Counter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -31,7 +32,7 @@ Transform:
   m_Children:
   - {fileID: 3231251168401442263}
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!65 &1765530507192706131
 BoxCollider:
@@ -54,6 +55,18 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.5, y: 1.5, z: 1.5}
   m_Center: {x: 0, y: 0.5, z: 0}
+--- !u!114 &6813504396134268068
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1544690681669542546}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbffad25fad68a24e8c1c79cf310f127, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1397882621661225340
 PrefabInstance:
   m_ObjectHideFlags: 0
