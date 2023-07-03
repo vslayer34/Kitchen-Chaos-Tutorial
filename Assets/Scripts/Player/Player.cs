@@ -1,15 +1,25 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    #region Singleton
+    public static Player Instance { get; private set; }
+    #endregion
+
+    public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
+    public class OnSelectedCounterChangedEventArgs : EventArgs
+    {
+        public ClearCounter SelectedCounter { get; set; }
+    }
+
     [SerializeField] float movementSpeed = 7.0f;
     [SerializeField] GameInput gameInput;
     [SerializeField] LayerMask layerMask;
 
     bool isWalking;
     Vector3 lastInteractDirection;
+    ClearCounter selectedCounter;
 
 
     // properties
@@ -18,29 +28,41 @@ public class Player : MonoBehaviour
     /// </summary>
     public bool IsWalking { get => isWalking; }
 
+
+    private void Awake()
+    {
+        if (Instance != null)
+        {
+            Debug.LogError("More than one instance of the player.");
+        }
+        Instance = this;
+    }
+
+
     void Start()
     {
         gameInput.OnInteractionAction += GameInput_OnInteractionAction;
     }
 
-    private void GameInput_OnInteractionAction(object sender, System.EventArgs e)
+    private void GameInput_OnInteractionAction(object sender, EventArgs e)
     {
-        HanldeInteractions();
+        selectedCounter?.Interact();
     }
 
     private void Update()
     {
         HandleMovement();
+        HandleInteractions();
     }
 
 
-    void HanldeInteractions()
+    void HandleInteractions()
     {
         Vector2 inputVector = gameInput.GetInputVectorNormalized();
         Vector3 moveDirection = new Vector3(inputVector.x, 0.0f, inputVector.y);
 
         // get the last interaction so it remebers the interaction without the player moving
-        if (moveDirection != Vector3.zero )
+        if (moveDirection != Vector3.zero)
         {
             lastInteractDirection = moveDirection;
         }
@@ -50,13 +72,40 @@ public class Player : MonoBehaviour
         if (Physics.Raycast(transform.position, lastInteractDirection, out RaycastHit hit, interactionDistance, layerMask))
         {
             // Try to get the ClearCounter script to identify the object the player collided with
-            if (hit.collider.TryGetComponent(out ClearCounter counter))
+            if (hit.transform.TryGetComponent(out ClearCounter counter))
             {
-                counter.Interact();
+                if (counter != selectedCounter)
+                {
+                    SetSelectedCounter(counter);
+                }
             }
+            else
+            {
+                SetSelectedCounter(null);
+            }
+        }
+        else
+        {
+            SetSelectedCounter(null);
         }
     }
 
+
+    /// <summary>
+    /// Set the selected counter when the player goes near it
+    /// </summary>
+    /// <param name="clearCounter">referance to the counter the player selected</param>
+    void SetSelectedCounter(ClearCounter clearCounter)
+    {
+        // set the selected counter and fire an event that it was selected
+        selectedCounter = clearCounter;
+
+        OnSelectedCounterChanged?.Invoke(this, new OnSelectedCounterChangedEventArgs { SelectedCounter = selectedCounter });
+    }
+
+    /// <summary>
+    /// Handle the player movement
+    /// </summary>
     void HandleMovement()
     {
         Vector2 inputVector = gameInput.GetInputVectorNormalized();
