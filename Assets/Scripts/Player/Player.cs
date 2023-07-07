@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, IKitchenObjectParent
 {
     #region Singleton
     public static Player Instance { get; private set; }
@@ -10,16 +10,21 @@ public class Player : MonoBehaviour
     public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
     public class OnSelectedCounterChangedEventArgs : EventArgs
     {
-        public ClearCounter SelectedCounter { get; set; }
+        public BaseCounter SelectedCounter { get; set; }
     }
 
     [SerializeField] float movementSpeed = 7.0f;
     [SerializeField] GameInput gameInput;
     [SerializeField] LayerMask layerMask;
+    [SerializeField] Transform kitchenObjectHoldingPoint;
+
+
+    // get the spawned kitchen object
+    private KitchenObject kitchenObject;
 
     bool isWalking;
     Vector3 lastInteractDirection;
-    ClearCounter selectedCounter;
+    BaseCounter selectedCounter;
 
 
     // properties
@@ -46,7 +51,7 @@ public class Player : MonoBehaviour
 
     private void GameInput_OnInteractionAction(object sender, EventArgs e)
     {
-        selectedCounter?.Interact();
+        selectedCounter?.Interact(this);
     }
 
     private void Update()
@@ -72,7 +77,7 @@ public class Player : MonoBehaviour
         if (Physics.Raycast(transform.position, lastInteractDirection, out RaycastHit hit, interactionDistance, layerMask))
         {
             // Try to get the ClearCounter script to identify the object the player collided with
-            if (hit.transform.TryGetComponent(out ClearCounter counter))
+            if (hit.transform.TryGetComponent(out BaseCounter counter))
             {
                 if (counter != selectedCounter)
                 {
@@ -95,10 +100,10 @@ public class Player : MonoBehaviour
     /// Set the selected counter when the player goes near it
     /// </summary>
     /// <param name="clearCounter">referance to the counter the player selected</param>
-    void SetSelectedCounter(ClearCounter clearCounter)
+    void SetSelectedCounter(BaseCounter baseCounter)
     {
         // set the selected counter and fire an event that it was selected
-        selectedCounter = clearCounter;
+        selectedCounter = baseCounter;
 
         OnSelectedCounterChanged?.Invoke(this, new OnSelectedCounterChangedEventArgs { SelectedCounter = selectedCounter });
     }
@@ -158,5 +163,27 @@ public class Player : MonoBehaviour
 
         float rotaionSpeed = 10.0f;
         transform.forward = Vector3.Slerp(transform.forward, moveDirection, Time.deltaTime * rotaionSpeed);
+    }
+
+    // IKitchenObjectInterface Implementaion
+    public Transform GetCounterTopPoint() => kitchenObjectHoldingPoint;
+
+
+    public void ClearKitchenCounter()
+    {
+        kitchenObject = null;
+    }
+
+    public void SetKitchenObject(KitchenObject kitchenObject)
+    {
+        this.kitchenObject = kitchenObject;
+    }
+
+    public KitchenObject GetKitchenObject() => kitchenObject;
+
+    public bool HasKitchenObject()
+    {
+        Debug.Log(kitchenObject != null);
+        return kitchenObject != null;
     }
 }
