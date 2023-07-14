@@ -12,10 +12,8 @@ public class ContainerCounter : BaseCounter, IKitchenObjectParent
     {
         // if the player isn't caryying anything
         if (!player.HasKitchenObject())
-        { 
-            Transform kitchenObjectPrefab = Instantiate(kitchenObjectSO.prefab);
-            kitchenObjectPrefab.GetComponent<KitchenObject>().SetParentCounter(player);
-            kitchenObjectPrefab.localPosition = Vector3.zero;
+        {
+            KitchenObject.SpawnKitchenObject(kitchenObjectSO, player);
 
             OnPlayerGrabbingObject?.Invoke(this, EventArgs.Empty);
         }
